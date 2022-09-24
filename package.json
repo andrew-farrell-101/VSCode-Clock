@@ -16,7 +16,7 @@
   "contributes": {
     "commands": [
       {
-        "command": "clock.helloWorld",
+        "command": "clock.timer",
         "title": "Hello World"
       }
     ]

@@ -1,29 +1,68 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 const date = require('date-and-time');
 
-// this method is called when your extension is activated
-// your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-    const now = new Date();
-    const value = date.format(now,'HH:mm');
-	console.log('Congratulations, your extension "clock" is now active!');
+    let format = 'HH:mm:ss';
+    let now = new Date();
+    const value = date.format(now,format);
+    let clockIsOn = true;
+    let timerIsOn = false;
+
+    // This will be used to store the end of timer data
+    var timerEnd: Date; 
+
     let barClock = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
+
     barClock.text = value;
     barClock.backgroundColor = new vscode.ThemeColor('statusBarItem.errorBackground');
     barClock.show();
 
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with registerCommand
-	// The commandId parameter must match the command field in package.json
-	let disposable = vscode.commands.registerCommand('clock.helloWorld', () => {
-		// The code you place here will be executed every time your command is executed
-		// Display a message box to the user
-        // barClock.show();
-		vscode.window.showInformationMessage('Hello VS Code!');
+    let updateClock = setInterval(function () {
+        if (clockIsOn) {
+            now = new Date();
+            barClock.text = date.format(now, format);
+        }
+    }, 1000);
+
+    let updateTimer = setInterval(function () {
+        if (timerIsOn) {
+          let now = new Date();
+          if (timerEnd > now) {
+            barClock.text = date.format(new Date(0,0,0, timerEnd.getHours() - now.getHours(), timerEnd.getMinutes() - now.getMinutes(), timerEnd.getSeconds() - now.getSeconds()), format);
+          } else {
+            timerIsOn = false;
+            vscode.window.showInformationMessage("Timer Complete");
+            clockIsOn = true;
+          }
+        }
+    }, 1000);
+    
+    barClock.command = 'clock.timer';
+
+	let disposable = vscode.commands.registerCommand('clock.timer', async () => {
+        var options = {
+            prompt: "Enter timer length or press esc to cancel",
+            placeHolder: "HH:MM:ss format:" // <- An optional string to show as place holder in the input box to guide the user what to type.
+        };
+
+    // Consider adding a stop timer function
+    // let disposable = vscode.commands.registerCommand('clock.timer', async () => {
+    //     var options = {
+    //         prompt: "Enter timer length or press esc to cancel",
+    //         placeHolder: "HH:MM:ss format:" // <- An optional string to show as place holder in the input box to guide the user what to type.
+    //     };
+
+        let ret = await vscode.window.showInputBox(options);
+        console.log("Input: " + ret);
+        if (ret !== undefined) {
+            timerEnd = new Date();
+            let [hours, minutes, seconds] = ret.split(':');
+            timerEnd.setHours(timerEnd.getHours() + +hours, timerEnd.getMinutes() + +minutes, timerEnd.getSeconds() + +seconds);
+            console.log("Timer is set to end at: " + timerEnd);
+            vscode.window.showInformationMessage("Timer started");
+            clockIsOn = false;
+            timerIsOn = true;
+        } 
 	});
 
 	context.subscriptions.push(disposable);
