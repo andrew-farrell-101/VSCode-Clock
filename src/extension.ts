@@ -1,13 +1,18 @@
+
 import * as vscode from 'vscode';
 const date = require('date-and-time');
 
 export function activate(context: vscode.ExtensionContext) {
+
+   // on activate
+    
+
     let format = 'HH:mm:ss';
     let now = new Date();
     const value = date.format(now,format);
     let clockIsOn = true;
     let timerIsOn = false;
-
+    
     // This will be used to store the end of timer data
     var timerEnd: Date; 
 
@@ -42,7 +47,8 @@ export function activate(context: vscode.ExtensionContext) {
 	let disposable = vscode.commands.registerCommand('clock.timer', async () => {
         var options = {
             prompt: "Enter timer length or press esc to cancel",
-            placeHolder: "HH:MM:ss format:" // <- An optional string to show as place holder in the input box to guide the user what to type.
+            placeHolder: "Please only use HH:MM:ss format", // <- An optional string to show as place holder in the input box to guide the user what to type
+            value: context.extension.packageJSON.previousTimer
         };
 
     // Consider adding a stop timer function
@@ -55,6 +61,7 @@ export function activate(context: vscode.ExtensionContext) {
         let ret = await vscode.window.showInputBox(options);
         console.log("Input: " + ret);
         if (ret !== undefined) {
+            context.extension.packageJSON.previousTimer = ret;
             timerEnd = new Date();
             let [hours, minutes, seconds] = ret.split(':');
             timerEnd.setHours(timerEnd.getHours() + +hours, timerEnd.getMinutes() + +minutes, timerEnd.getSeconds() + +seconds);
