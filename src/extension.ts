@@ -6,62 +6,63 @@ export function activate(context: vscode.ExtensionContext) {
     
     // format to print out the final clock
     let format = 'HH:mm:ss';
-    
-    let now = new Date();
-    const value = date.format(now,format);
     let clockIsOn = true;
-    let timerIsOn = false;
+    
     
     // This will be used to store the end of timer data
-    var timerEnd: Date; 
+    // I'm declaring it here because I'll need it in different parts of the code
+    // later. Not ideal but it is what it is. 
+    let timerEnd: Date; 
 
+    
+    // set up the clock and make it show up
     let barClock = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
-
-    barClock.text = value;
+    barClock.text = date.format(new Date(),format);
     barClock.backgroundColor = new vscode.ThemeColor('statusBarItem.errorBackground');
     barClock.show();
 
-    let updateClock = setInterval(function () {
+    // this will be used to update both the clock and timer on a 1000ms interval
+    setInterval(function () {
+        let now = new Date();
         if (clockIsOn) {
-            now = new Date();
             barClock.text = date.format(now, format);
-        }
-    }, 1000);
+        } else {
+            // if the timer hasn't ended yet
+            if (timerEnd > now) {
+              // set the clock timer text to the differenec between the time 
+              // stored in now and the time stored in the timer end.
+              barClock.text = date.format(new Date(0,0,0, timerEnd.getHours() - now.getHours(), timerEnd.getMinutes() - now.getMinutes(), timerEnd.getSeconds() - now.getSeconds()), format);
+            } else {
+              vscode.window.showInformationMessage("Timer Complete");
+              clockIsOn = true;
+            }
+        }}, 1000);
 
-    let updateTimer = setInterval(function () {
-        if (timerIsOn) {
-          let now = new Date();
-          if (timerEnd > now) {
-            barClock.text = date.format(new Date(0,0,0, timerEnd.getHours() - now.getHours(), timerEnd.getMinutes() - now.getMinutes(), timerEnd.getSeconds() - now.getSeconds()), format);
-          } else {
-            timerIsOn = false;
-            vscode.window.showInformationMessage("Timer Complete");
-            clockIsOn = true;
-          }
-        }
-    }, 1000);
-    
+    // set a command that will activate on clicking the clock widget
     barClock.command = 'clock.timer';
-
 	let disposable = vscode.commands.registerCommand('clock.timer', async () => {
-        var options = {
+        let options = {
             prompt: "Enter timer length or press esc to cancel",
-            placeHolder: "Please only use HH:MM:ss format", // <- An optional string to show as place holder in the input box to guide the user what to type
+            placeHolder: "Please only use HH:MM:ss format",
             value: context.globalState.get("previousTimer", "")
         };
         
         let ret = await vscode.window.showInputBox(options);
         // console.log("Input: " + ret);
-        if (ret !== undefined) {
-            value: context.globalState.update("previousTimer", ret);
-            timerEnd = new Date();
+        if (ret) {
+            context.globalState.update("previousTimer", ret);
+
+            // **No thorough checking is done of the input, I only check
+            // to make sure the string has something in it
             let [hours, minutes, seconds] = ret.split(':');
-            timerEnd.setHours(timerEnd.getHours() + +hours, timerEnd.getMinutes() + +minutes, timerEnd.getSeconds() + +seconds);
-            console.log("Timer is set to end at: " + timerEnd);
-            console.log(context.globalStorageUri);
-            vscode.window.showInformationMessage("Timer started");
+            timerEnd = new Date();
+            timerEnd.setHours(timerEnd.getHours() + +hours,
+                              timerEnd.getMinutes() + +minutes,
+                              timerEnd.getSeconds() + +seconds);
             clockIsOn = false;
-            timerIsOn = true;
+            vscode.window.showInformationMessage("Timer started");
+            // console.log("Timer is set to end at: " + timerEnd);
+            // console.log(context.globalStorageUri);
         } 
 	});
 
