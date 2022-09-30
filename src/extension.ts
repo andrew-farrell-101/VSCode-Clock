@@ -3,6 +3,10 @@ import * as vscode from 'vscode';
 const date = require('date-and-time');
 
 export function activate(context: vscode.ExtensionContext) {
+    let msgOpts = {
+        detail: "Your timer is not complete. Continue being an infallible code demigod.",
+        modal: true,
+    };
     
     // format to print out the final clock
     let format = 'HH:mm:ss';
@@ -22,7 +26,7 @@ export function activate(context: vscode.ExtensionContext) {
     barClock.show();
 
     // this will be used to update both the clock and timer on a 1000ms interval
-    setInterval(function () {
+    let tick = setInterval(function () {
         let now = new Date();
         if (clockIsOn) {
             barClock.text = date.format(now, format);
@@ -31,10 +35,14 @@ export function activate(context: vscode.ExtensionContext) {
             if (timerEnd > now) {
               // set the clock timer text to the differenec between the time 
               // stored in now and the time stored in the timer end.
-              barClock.text = date.format(new Date(0,0,0, timerEnd.getHours() - now.getHours(), timerEnd.getMinutes() - now.getMinutes(), timerEnd.getSeconds() - now.getSeconds()), format);
+              barClock.text = date.format(new Date(0,0,0,
+                                            timerEnd.getHours() - now.getHours(),
+                                             timerEnd.getMinutes() - now.getMinutes(),
+                                              timerEnd.getSeconds() - now.getSeconds()),
+                                               format);
             } else {
-              vscode.window.showInformationMessage("Timer Complete");
               clockIsOn = true;
+              vscode.window.showInformationMessage("Timer complete", msgOpts);
             }
         }}, 1000);
 
@@ -48,7 +56,8 @@ export function activate(context: vscode.ExtensionContext) {
         };
         
         let ret = await vscode.window.showInputBox(options);
-        // console.log("Input: " + ret);
+        
+        console.log("Input: " + ret);
         if (ret) {
             context.globalState.update("previousTimer", ret);
 
@@ -61,6 +70,7 @@ export function activate(context: vscode.ExtensionContext) {
                               timerEnd.getSeconds() + +seconds);
             clockIsOn = false;
             vscode.window.showInformationMessage("Timer started");
+
             // console.log("Timer is set to end at: " + timerEnd);
             // console.log(context.globalStorageUri);
         } 
