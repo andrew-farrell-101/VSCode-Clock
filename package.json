@@ -3,7 +3,6 @@
   "displayName": "clock",
   "description": "",
   "version": "0.0.1",
-  "previousTimer": "",
   "engines": {
     "vscode": "^1.71.0"
   },

@@ -3,11 +3,10 @@ import * as vscode from 'vscode';
 const date = require('date-and-time');
 
 export function activate(context: vscode.ExtensionContext) {
-
-   // on activate
     
-
+    // format to print out the final clock
     let format = 'HH:mm:ss';
+    
     let now = new Date();
     const value = date.format(now,format);
     let clockIsOn = true;
@@ -48,24 +47,18 @@ export function activate(context: vscode.ExtensionContext) {
         var options = {
             prompt: "Enter timer length or press esc to cancel",
             placeHolder: "Please only use HH:MM:ss format", // <- An optional string to show as place holder in the input box to guide the user what to type
-            value: context.extension.packageJSON.previousTimer
+            value: context.globalState.get("previousTimer", "")
         };
-
-    // Consider adding a stop timer function
-    // let disposable = vscode.commands.registerCommand('clock.timer', async () => {
-    //     var options = {
-    //         prompt: "Enter timer length or press esc to cancel",
-    //         placeHolder: "HH:MM:ss format:" // <- An optional string to show as place holder in the input box to guide the user what to type.
-    //     };
-
+        
         let ret = await vscode.window.showInputBox(options);
-        console.log("Input: " + ret);
+        // console.log("Input: " + ret);
         if (ret !== undefined) {
-            context.extension.packageJSON.previousTimer = ret;
+            value: context.globalState.update("previousTimer", ret);
             timerEnd = new Date();
             let [hours, minutes, seconds] = ret.split(':');
             timerEnd.setHours(timerEnd.getHours() + +hours, timerEnd.getMinutes() + +minutes, timerEnd.getSeconds() + +seconds);
             console.log("Timer is set to end at: " + timerEnd);
+            console.log(context.globalStorageUri);
             vscode.window.showInformationMessage("Timer started");
             clockIsOn = false;
             timerIsOn = true;
