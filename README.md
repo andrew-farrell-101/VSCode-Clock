@@ -1,21 +1,28 @@
-# Readme
+# Clock Extension
 
-## Project Description
-In my assignment, I created a clock plugin for vscode using typescript. The
-clock, formatted in military time, counts in one second intervals and has
-timer functionality which remembers the previously provided timer.
-
+## Description
+This is a vscode extension which displays a clock on the status bar. This is 
+not intended to be a production quality extension and it only for explorative
+purposes. Feel free to copy, use, or share.
 ## Getting Started
-Download the zip and unzip it to a local directory. From the extension.tx file, run the extension using F5. A new window will open
-with a clock in the bottom left hand corner highlighted in red. To use the timer
-functionality, click on the clock and enter a time in hh:mm:ss format. For 
-example, if I wanted to enter a 5 second timer, I would click on the clock and
-type "00:00:05" representing 00 hours, 00 minutes, and 05 seconds. *Note: the*
-*behavior of the extension with other input formats is not well defined.* Once
-the timer has been given a time, a countdown will begin. Once the timer is up,
-the user is notified and the clock resumes.
+*Make sure to both node and npm are installed installed and up to date.* <br> Open the
+extension in VS Code 1.47+ and run
+- ```npm install```
+- ```npm run watch``` or ```npm run compile```<br>
+Then press ```F5``` to start debugging. 
 
+## Features
+The extension counts using a military clock. The user can set a timer by clicking
+on the clock and entering a timer in the outlined format.
+![Alt Text](timer.gif)
+The clock then counts down the desired time and notifies the user on completion.
+Using the visual studio extension API, the timer stores the last used timer
+length into a local .vscdb file and retrieves it in the next timer prompt.
 ##  Sources
+Here are some recources I checked out while making the project
 - https://code.visualstudio.com/api/get-started/your-first-extension
+- https://github.com/microsoft/vscode-extension-samples/tree/main/webview-sample
 - https://code.visualstudio.com/api/references/vscode-api
 - https://www.geeksforgeeks.org/what-is-setinterval-in-javascript/
+
+

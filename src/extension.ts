@@ -4,7 +4,7 @@ const date = require('date-and-time');
 
 export function activate(context: vscode.ExtensionContext) {
     let msgOpts = {
-        detail: "Your timer is not complete. Continue being an infallible code demigod.",
+        detail: "Your timer complete.",
         modal: true,
     };
     
@@ -26,7 +26,7 @@ export function activate(context: vscode.ExtensionContext) {
     barClock.show();
 
     // this will be used to update both the clock and timer on a 1000ms interval
-    let tick = setInterval(function () {
+    setInterval(function () {
         let now = new Date();
         if (clockIsOn) {
             barClock.text = date.format(now, format);
@@ -58,9 +58,9 @@ export function activate(context: vscode.ExtensionContext) {
         let ret = await vscode.window.showInputBox(options);
         
         console.log("Input: " + ret);
+        context.globalState.update("previousTimer", ret);
         if (ret) {
-            context.globalState.update("previousTimer", ret);
-
+    
             // **No thorough checking is done of the input, I only check
             // to make sure the string has something in it
             let [hours, minutes, seconds] = ret.split(':');
@@ -73,7 +73,7 @@ export function activate(context: vscode.ExtensionContext) {
 
             // console.log("Timer is set to end at: " + timerEnd);
             // console.log(context.globalStorageUri);
-        } 
+        }
 	});
 
 	context.subscriptions.push(disposable);
